@@ -28,9 +28,7 @@ public class MeijuttProvider extends SourceProvider {
 
     @Override
     public List<Show> searchShows(String keyword, JProgressBar progressBar, int slice) {
-        progressBar.setValue(0);
-        progressBar.setStringPainted(true);
-        progressBar.setString(0 + "%");
+        Utils.SetProgress(progressBar, 0);
         Map<String, String> params = new HashMap<String, String>();
         keyword = magicProcess(keyword);
         params.put("searchword", keyword);
@@ -39,10 +37,13 @@ public class MeijuttProvider extends SourceProvider {
         Elements elements = doc.getElementsByClass("cn_box2");
         for (Element element : elements) {
             int value = progressBar.getValue() + 100 / slice / elements.size();
-            progressBar.setValue(value);
-            progressBar.setString(value + "%");
-            showList.add(extractInfo(element));
+            Utils.SetProgress(progressBar, value);
+            Show show = extractInfo(element);
+            if (show != null) {
+                showList.add(show);
+            }
         }
+        Utils.SetProgress(progressBar, 100);
         Collections.sort(showList, new Comparator<Show>() {
             @Override
             public int compare(Show o1, Show o2) {
@@ -67,14 +68,19 @@ public class MeijuttProvider extends SourceProvider {
     }
 
     private Show extractInfo(Element element) {
-        String showName = element.getElementsByClass("B").text();
-        String showEnglishName = element.getElementsByTag("font").get(1).text();
-        int season = Utils.extractSeasonFromFileName(showName);
-        Show show = new Show(showName.substring(0, showName.lastIndexOf("第")), season, 1);
-        int start = showEnglishName.indexOf("/") == -1 ? 0 : showEnglishName.indexOf("/") + 1;
-        int end = showEnglishName.toLowerCase().lastIndexOf("season");
-        show.setEnglishName(showEnglishName.substring(start, end == -1 ? showEnglishName.length() - 1 : end).trim());
-        return show;
+        try {
+            String showName = element.getElementsByClass("B").text();
+            String showEnglishName = element.getElementsByTag("font").get(1).text();
+            int season = Utils.extractSeasonFromFileName(showName);
+            Show show = new Show(showName.substring(0, showName.lastIndexOf("第")), season, 1);
+            int start = showEnglishName.indexOf("/") == -1 ? 0 : showEnglishName.indexOf("/") + 1;
+            int end = showEnglishName.toLowerCase().lastIndexOf("season");
+            show.setEnglishName(showEnglishName.substring(start, end == -1 ? showEnglishName.length() - 1 : end).trim());
+            return show;
+        } catch (Exception e) {
+            Utils.log("Failed to extract information");
+            return null;
+        }
     }
 
     public List<DownloadLink> fetchDownloadLinks(String showName, int showSeason) {

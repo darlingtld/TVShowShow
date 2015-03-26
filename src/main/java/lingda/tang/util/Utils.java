@@ -192,4 +192,10 @@ public class Utils {
 
         return 0;
     }
+
+    public static void SetProgress(JProgressBar progressBar, int value) {
+        progressBar.setValue(value);
+        progressBar.setStringPainted(true);
+        progressBar.setString(value + "%");
+    }
 }

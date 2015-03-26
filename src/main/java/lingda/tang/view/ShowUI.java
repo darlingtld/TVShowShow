@@ -24,11 +24,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ShowUI {
 
-    private MeijuttProvider mjttProvider = InstanceHolder.getMjttProvider();
-    private LocalFileService localFileService = InstanceHolder.getLocalFileService();
     static ShowUI showUI;
     static JFrame manageShowFrame = new JFrame("ManageShowUI");
+    private static Map<String, List<DownloadLink>> linksMap = new HashMap<String, List<DownloadLink>>();
     JFrame searchFrame = new JFrame("SearchUI");
+    private MeijuttProvider mjttProvider = InstanceHolder.getMjttProvider();
+    private LocalFileService localFileService = InstanceHolder.getLocalFileService();
     private JTextField searchForm;
     private JButton bSearch;
     private JTabbedPane showTabbedPane;
@@ -37,7 +38,6 @@ public class ShowUI {
     private JPanel showPanel;
     private JButton updateAllButton;
     private JProgressBar progressBar;
-    private static Map<String, List<DownloadLink>> linksMap = new HashMap<String, List<DownloadLink>>();
 
     public ShowUI() {
         udpateTabbedPane();
@@ -211,15 +211,18 @@ public class ShowUI {
     }
 
     private void updateAll() {
-        progressBar.setValue(0);
-        progressBar.setStringPainted(true);
-        progressBar.setString(0 + "%");
+        Utils.SetProgress(progressBar, 0);
         boolean isHiDefinitonChecked = hdRadioButton.isSelected();
         final AtomicInteger index = new AtomicInteger(0);
         for (int i = 0; i < Utils.getShowList().size(); i++) {
             Show show = Utils.getShowList().get(i);
             String showName = show.getEnglishName();
-            linksMap.put(showName, mjttProvider.fetchDownloadLinks(showName, show.getSeason()));
+            try {
+                linksMap.put(showName, mjttProvider.fetchDownloadLinks(showName, show.getSeason()));
+            } catch (Exception e) {
+                e.printStackTrace();
+                continue;
+            }
             JPanel panel = (JPanel) showTabbedPane.getComponentAt(i);
             panel.removeAll();
             JTextPane textPane = new JTextPane();
@@ -266,9 +269,7 @@ public class ShowUI {
                 @Override
                 public void run() {
                     int value = (index.incrementAndGet() * 100) / Utils.getShowList().size();
-                    progressBar.setValue(value);
-                    progressBar.setStringPainted(true);
-                    progressBar.setString(value + "%");
+                    Utils.SetProgress(progressBar, value);
                     progressBar.updateUI();
                 }
             }.start();

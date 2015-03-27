@@ -134,6 +134,10 @@ public class MeijuttProvider extends SourceProvider {
         List<DownloadLink> downloadLinks = new ArrayList<DownloadLink>();
         Elements elements = doc.getElementsByAttributeValue("title", Utils.getShowNameChinese(showName) + "第" + season + "季");
         String showUrl = getShowUrl(elements.attr("href"));
+        if (null == showUrl || "".equals(showUrl.trim())) {
+            elements = doc.getElementsByAttributeValue("title", Utils.getShowNameChinese(showName) + season + "季");
+            showUrl = getShowUrl(elements.attr("href"));
+        }
         Utils.log("Connecting to %s/%s ...", Config.HOST_NAME, showUrl);
         int retry = 5;
         while (--retry >= 0) {

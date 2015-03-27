@@ -75,6 +75,7 @@ public class Utils {
 
     //    just deal with two digits number
     public static String convertNumberToChinese(int number) {
+        if (number > 100) return "1-" + number % 100;
         String[] chNumberArray = new String[]{"零", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十"};
         StringBuilder chineseNumber = new StringBuilder();
         int digit1 = number / 10;

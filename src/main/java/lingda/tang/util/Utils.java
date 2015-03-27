@@ -198,4 +198,15 @@ public class Utils {
         progressBar.setStringPainted(true);
         progressBar.setString(value + "%");
     }
+
+    public static String extractBundledSeasonFromFileName(String showName) {
+        // 成长的烦恼1-7季
+        Pattern pattern = Pattern.compile("(\\d+-\\d+)");
+        Matcher matcher = pattern.matcher(showName);
+        if (matcher.find()) {
+            return matcher.group(1);
+        } else {
+            return null;
+        }
+    }
 }

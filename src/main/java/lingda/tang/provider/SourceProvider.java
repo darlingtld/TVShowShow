@@ -7,7 +7,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import javax.swing.*;
-import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +19,7 @@ public abstract class SourceProvider {
     public abstract List<Show> searchShows(String keyword, JProgressBar progressBar, int slice);
 
     public Document searchShowFromSourceProvider(String url, Map<String, String> params) {
-        int retry = 5;
+        int retry = 7;
         Utils.log("Connecting to %s ...", url);
         while (--retry >= 0) {
             try {
@@ -33,8 +32,9 @@ public abstract class SourceProvider {
             } catch (SocketTimeoutException e) {
                 Utils.log("Connecting to %s times out", url);
                 continue;
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
+                continue;
             }
         }
         return null;
